@@ -69,5 +69,5 @@ socket.on('response_data', function(data) {
             }
         }
     }
-    window.requestAnimationFrame(draw);
+    animation_manager.new_task();
 });

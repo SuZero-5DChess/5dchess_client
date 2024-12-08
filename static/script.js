@@ -5,6 +5,39 @@ const square_size = 10; // size of each square (px)
 const board_margin = 4; // margin outside boards
 const board_skip = 120; 
 
+class AnimationManager
+{
+    constructor(callback) {
+        this.running = false;
+        this.time_record = 0;
+        this.stop_animation = () => {
+            this.running = false;
+            console.log("Animation stopped");
+        }
+        this.wrapper = (time_now) => {
+            let time_diff = 20;
+            if(time_now)
+            {
+                time_diff = time_now - this.time_record;
+                this.time_record = time_now;
+                //console.log(`now ${time_now}  diff ${time_diff}`);
+            }
+            callback(time_diff, this.stop_animation);
+            if(this.running)
+            {
+                requestAnimationFrame(this.wrapper);
+            }
+        }
+    }
+    new_task() {
+        if(this.running)
+        {
+            return;
+        }
+        this.running = true;
+        requestAnimationFrame(this.wrapper);
+    }
+}
 
 class Camera
 {
@@ -21,6 +54,7 @@ class Camera
     }
     lean_to(camera, time_delta)
     {
+        //console.log(`${this.x} ${this.y} ${camera.x} ${camera.y} ${time_delta}`);
         if(this.close_to(camera))
         {
             this.x = camera.x
@@ -46,36 +80,26 @@ class Camera
 
 
 let camera_now = new Camera(0,0,-1.0);
-let camera_target = new Camera(0,0,1.0);
-let time_record = 0, time_diff=16;
+let camera_target = new Camera(0,0,-1.0);
+let cursor_coordinate = {x:0, y:0};
 
 //dummy function that does nothing
 let draw_boards = (context) => null;
 
-function draw(time_now) {
+function draw(time_diff, stop_animation) {
     var canvas = document.getElementById("display");
     var context = canvas.getContext("2d");
     var status_camera = document.getElementById("camera");
 
-    if(time_now)
-    {
-        time_diff = time_now - time_record;
-        time_record = time_now;
-        console.log(time_diff);
-    }
-    else
-    {
-        time_diff = 20;
-    }
-
     // clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
-    context.translate(camera_now.x, camera_now.y);
     let scale = 2**camera_now.scale;
+    //context.translate(-canvas.width/2.0, -canvas.height/2.0);
     context.scale(scale, scale);
-
-    draw_boards(context);   
+    context.translate(camera_now.x, camera_now.y);
+    
+    draw_boards(context);
     /*
     context.beginPath(); // begin custom shape
     context.moveTo(-119, -20);
@@ -97,19 +121,22 @@ function draw(time_now) {
     context.stroke();
     context.drawImage(svg_images['Q'], 0, 0, 32, 32);
     */
+    context.fillRect(0,0,10,10);
     status_camera.innerHTML = `camera_now: x = ${camera_now.x.toFixed(2)} `
     + `y = ${camera_now.y.toFixed(2)} `
     + `scale = ${camera_now.scale.toFixed(2)} `;
     context.restore();
     //if the camera has not moved to the designated location, draw next frame
-    if( camera_now.x != camera_target.x 
-     || camera_now.x != camera_target.x
-     || camera_now.scale != camera_target.scale )
+    if( camera_now.x == camera_target.x 
+     && camera_now.x == camera_target.x
+     && camera_now.scale == camera_target.scale )
     {
-        camera_now.lean_to(camera_target, time_diff);
-        requestAnimationFrame(draw);
+        stop_animation();
     }
+    camera_now.lean_to(camera_target, time_diff);
 }
+
+let animation_manager = new AnimationManager(draw);
 
 window.onload = function() {
     let canvas = document.getElementById("display");
@@ -119,7 +146,7 @@ window.onload = function() {
         camera_target.x = canvas.width/6 ;
         camera_target.y = canvas.width/6;
         camera_target.scale = canvas.width / 360;
-        window.requestAnimationFrame(draw);
+        animation_manager.new_task();
     }
 
     
@@ -151,7 +178,7 @@ window.onload = function() {
         if (is_mouse_down) {
             camera_target.x = Math.trunc(e.clientX - start_drag.x);
             camera_target.y = Math.trunc(e.clientY - start_drag.y);
-            window.requestAnimationFrame(draw);
+            animation_manager.new_task();
         }
 
         var rect = canvas.getBoundingClientRect();
@@ -159,8 +186,8 @@ window.onload = function() {
             x: (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
             y: (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
         };
-        let coordinate = camera_now.inverse(mouse_pos);
-        status.innerHTML = `x = ${coordinate.x} y = ${coordinate.y}`;
+        cursor_coordinate = camera_now.inverse(mouse_pos);
+        status.innerHTML = `x = ${cursor_coordinate.x.toFixed(2)} y = ${cursor_coordinate.y.toFixed(2)}`;
         //status.innerHTML = `x = ${mouse_pos.x} y = ${mouse_pos.y}`;
     });
 
@@ -169,7 +196,7 @@ window.onload = function() {
     canvas.addEventListener("wheel", function(e) {
         e.preventDefault();
         camera_target.scale += e.deltaY * scale_factor;
-        window.requestAnimationFrame(draw);
+        animation_manager.new_task();
     });
 
     go_to_center();
