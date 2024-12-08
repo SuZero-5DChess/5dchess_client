@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend Demo</title>
+  <script>
+    const svg_file_mapping = {
+      'b':"{{ url_for('static', filename='assets/bishop-black.svg') }}",
+      'B':"{{ url_for('static', filename='assets/bishop-white.svg') }}",
+      'w':"{{ url_for('static', filename='assets/brawn-black.svg') }}",
+      'W':"{{ url_for('static', filename='assets/brawn-white.svg') }}",
+      'c':"{{ url_for('static', filename='assets/commonking-black.svg') }}",
+      'C':"{{ url_for('static', filename='assets/commonking-white.svg') }}",
+      'd':"{{ url_for('static', filename='assets/dragon-black.svg') }}",
+      'D':"{{ url_for('static', filename='assets/dragon-white.svg') }}",
+      'k':"{{ url_for('static', filename='assets/king-black.svg') }}",
+      'K':"{{ url_for('static', filename='assets/king-white.svg') }}",
+      'n':"{{ url_for('static', filename='assets/knight-black.svg') }}",
+      'N':"{{ url_for('static', filename='assets/knight-white.svg') }}",
+      'p':"{{ url_for('static', filename='assets/pawn-black.svg') }}",
+      'P':"{{ url_for('static', filename='assets/pawn-white.svg') }}",
+      's':"{{ url_for('static', filename='assets/princess-black.svg') }}",
+      'S':"{{ url_for('static', filename='assets/princess-white.svg') }}",
+      'q':"{{ url_for('static', filename='assets/queen-black.svg') }}",
+      'Q':"{{ url_for('static', filename='assets/queen-white.svg') }}",
+      'r':"{{ url_for('static', filename='assets/rook-black.svg') }}",
+      'R':"{{ url_for('static', filename='assets/rook-white.svg') }}",
+      'y':"{{ url_for('static', filename='assets/royalqueen-black.svg') }}",
+      'Y':"{{ url_for('static', filename='assets/royalqueen-white.svg') }}",
+      'u':"{{ url_for('static', filename='assets/unicorn-black.svg') }}",
+      'U':"{{ url_for('static', filename='assets/unicorn-white.svg') }}"
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="{{ url_for('static', filename='piece.js') }}"></script>
+  <script src="{{ url_for('static', filename='socket.js') }}"></script>
+  <script src="{{ url_for('static', filename='parse.js') }}"></script>
+</head>
+<body>
+  <h1>Get Data with WebSocket and Print</h1>
+  <button onclick="requestData()">Request Data</button>
+  <pre id="output"></pre>
+  <div id="display_wrapper">
+      <noscript>Javascript is disabled.</noscript>
+      <canvas id="display" width="800" height="800">
+        Your browser does not support canvas object.
+      </canvas>
+      <div id="buttons_wrapper">
+        <input type="button" id="center" value="z">
+      </div>
+  </div>
+  <div id="status">
+      status bar has nothing to say yet
+  </div>
+</body>
+</html>
