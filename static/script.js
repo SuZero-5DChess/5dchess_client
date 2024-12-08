@@ -45,8 +45,8 @@ class Camera
 }
 
 
-let camera_now = new Camera(240,0,0.5);
-let camera_target = new Camera(240,0,1);
+let camera_now = new Camera(0,0,-1.0);
+let camera_target = new Camera(0,0,1.0);
 let time_record = 0, time_diff=16;
 
 //dummy function that does nothing
@@ -55,11 +55,13 @@ let draw_boards = (context) => null;
 function draw(time_now) {
     var canvas = document.getElementById("display");
     var context = canvas.getContext("2d");
+    var status_camera = document.getElementById("camera");
 
     if(time_now)
     {
         time_diff = time_now - time_record;
         time_record = time_now;
+        console.log(time_diff);
     }
     else
     {
@@ -70,8 +72,8 @@ function draw(time_now) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
     context.translate(camera_now.x, camera_now.y);
-    context.scale(camera_now.scale, camera_now.scale);
-
+    let scale = 2**camera_now.scale;
+    context.scale(scale, scale);
 
     draw_boards(context);   
     /*
@@ -95,7 +97,9 @@ function draw(time_now) {
     context.stroke();
     context.drawImage(svg_images['Q'], 0, 0, 32, 32);
     */
-
+    status_camera.innerHTML = `camera_now: x = ${camera_now.x.toFixed(2)} `
+    + `y = ${camera_now.y.toFixed(2)} `
+    + `scale = ${camera_now.scale.toFixed(2)} `;
     context.restore();
     //if the camera has not moved to the designated location, draw next frame
     if( camera_now.x != camera_target.x 
@@ -164,12 +168,10 @@ window.onload = function() {
 
     canvas.addEventListener("wheel", function(e) {
         e.preventDefault();
-        var scale = camera_target.scale * Math.exp(e.deltaY * scale_factor);
-        camera_target.scale = scale;
+        camera_target.scale += e.deltaY * scale_factor;
         window.requestAnimationFrame(draw);
     });
 
-    
     go_to_center();
 }
 

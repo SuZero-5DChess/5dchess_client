@@ -9,6 +9,7 @@ This is a software that helps displaying 5d chessboard. WIP.
 ```
 pip install flask flask_socketio
 ```
+(Remark: if something goes wrong, try update `flask` to its latest version)
 
 2. Go to `app.py`, and change the response data to what you would like to display. For colors, `0` is for white and `1` is for black.
 

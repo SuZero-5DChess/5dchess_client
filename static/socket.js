@@ -30,16 +30,36 @@ socket.on('response_data', function(data) {
             //parse
             let parsed_board = parse_FEN(board.fen);
             //draw checkerboard
+            context.fillStyle = '#7f7f7f';
             for (let row = 0; row < board_length; row++) 
             {
                 for (let col = 0; col < board_length; col++)
                 {
-                    const is_black = (row + col) % 2 === 1;
-                    // Set the fill color and draw
-                    context.fillStyle = is_black ? '#7f7f7f' : '#cccccc';
-                    context.fillRect(col*square_size + shift_x,
-                        row*square_size + shift_y,
-                        square_size, square_size);
+                    if((row + col) % 2 === 1)
+                    {
+                        context.fillRect(col*square_size + shift_x,
+                            row*square_size + shift_y,
+                            square_size, square_size);
+                    }
+                }
+            }
+            context.fillStyle = '#cccccc';
+            for (let row = 0; row < board_length; row++) 
+            {
+                for (let col = 0; col < board_length; col++)
+                {
+                    if((row + col) % 2 === 0)
+                    {
+                        context.fillRect(col*square_size + shift_x,
+                            row*square_size + shift_y,
+                            square_size, square_size);
+                    }
+                }
+            }
+            for (let row = 0; row < board_length; row++) 
+            {
+                for (let col = 0; col < board_length; col++)
+                {
                     const piece = parsed_board[row][col];
                     if(isNaN(piece))
                     {
