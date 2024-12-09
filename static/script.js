@@ -20,7 +20,7 @@ class AnimationManager
             {
                 time_diff = time_now - this.time_record;
                 this.time_record = time_now;
-                //console.log(`now ${time_now}  diff ${time_diff}`);
+                console.log(`now ${time_now}  diff ${time_diff}`);
             }
             callback(time_diff, this.stop_animation);
             if(this.running)
@@ -45,6 +45,9 @@ class Camera
         this.x = x;
         this.y = y;
         this.scale = scale;
+        // Next two are dummy value, please change them before using .inverse()
+        this.center_shift_x = 0;
+        this.center_shift_y = 0; 
     }
     close_to(camera)
     {
@@ -52,6 +55,8 @@ class Camera
             && Math.abs(this.y-camera.y) < 1 
             && Math.abs(this.scale/camera.scale - 1) < 0.02;
     }
+
+    // Move this camera a bit closer to the target camera (iff needed)
     lean_to(camera, time_delta)
     {
         //console.log(`${this.x} ${this.y} ${camera.x} ${camera.y} ${time_delta}`);
@@ -63,7 +68,6 @@ class Camera
         }
         else
         {
-            // Move this camera a bit closer to the target camera
             // adjust the floating number for speed
             const lerp_factor = (1.0 - 1.0/(1.0 + time_delta * 0.005)); 
             this.x += (camera.x - this.x) * lerp_factor;
@@ -71,10 +75,16 @@ class Camera
             this.scale += (camera.scale - this.scale) * lerp_factor;
         }
     }
+
+    // calculated the inverse of this linear transform:
+    // point => shift by (center_shift_x,center_shift_y)
+    //       => scale by 2**scale
+    //       => shift by (x,y)
     inverse(point)
     {
-        const t = 1 / this.scale;
-        return { x: t * (point.x - this.x), y: t * (point.y - this.y) };
+        const t = 1.0 / 2**this.scale;
+        return { x: t * (point.x - this.center_shift_x) - this.x,
+                 y: t * (point.y - this.center_shift_y) - this.y };
     }
 }
 
@@ -95,10 +105,11 @@ function draw(time_diff, stop_animation) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
     let scale = 2**camera_now.scale;
-    //context.translate(-canvas.width/2.0, -canvas.height/2.0);
+    let shift = canvas.width /2.0;
+    context.translate(shift, shift);
     context.scale(scale, scale);
     context.translate(camera_now.x, camera_now.y);
-    
+
     draw_boards(context);
     /*
     context.beginPath(); // begin custom shape
@@ -122,7 +133,9 @@ function draw(time_diff, stop_animation) {
     context.drawImage(svg_images['Q'], 0, 0, 32, 32);
     */
     context.fillRect(0,0,10,10);
-    status_camera.innerHTML = `camera_now: x = ${camera_now.x.toFixed(2)} `
+    status_camera.innerHTML = `camera_target: x = ${camera_target.x.toFixed(2)} `
+    + `y = ${camera_target.y.toFixed(2)} `
+    + `scale = ${camera_target.scale.toFixed(2)} camera_now: x = ${camera_now.x.toFixed(2)} `
     + `y = ${camera_now.y.toFixed(2)} `
     + `scale = ${camera_now.scale.toFixed(2)} `;
     context.restore();
@@ -142,24 +155,31 @@ window.onload = function() {
     let canvas = document.getElementById("display");
     let status = document.getElementById("status");
 
+    camera_now.center_shift_x = canvas.width / 2;
+    camera_now.center_shift_y = canvas.width / 2;
+
     function go_to_center() {
-        camera_target.x = canvas.width/6 ;
-        camera_target.y = canvas.width/6;
-        camera_target.scale = canvas.width / 360;
+        let actual_scale = canvas.width/120;
+        camera_target.scale = Math.log2(actual_scale);
+        camera_target.x = 0;
+        camera_target.y = 0;
         animation_manager.new_task();
     }
 
     
     var is_mouse_down = false;
     var start_drag = {x:0, y:0};
+    // drag speed
+    const speed_factor = 1.0;
 
     document.getElementById("center").addEventListener("click", go_to_center, false);
 
     // add event listeners to handle screen drag
     canvas.addEventListener("mousedown", function(e) {
         is_mouse_down = true;
-        start_drag.x = e.clientX - camera_target.x;
-        start_drag.y = e.clientY - camera_target.y;
+        let drag_speed = speed_factor / 2**camera_now.scale;
+        start_drag.x = drag_speed * e.clientX - camera_target.x;
+        start_drag.y = drag_speed * e.clientY - camera_target.y;
     });
 
     canvas.addEventListener("mouseup", function(e) {
@@ -176,8 +196,9 @@ window.onload = function() {
 
     canvas.addEventListener("mousemove", function(e) {
         if (is_mouse_down) {
-            camera_target.x = Math.trunc(e.clientX - start_drag.x);
-            camera_target.y = Math.trunc(e.clientY - start_drag.y);
+            let drag_speed = speed_factor / 2**camera_now.scale;
+            camera_target.x = Math.trunc(drag_speed * e.clientX - start_drag.x);
+            camera_target.y = Math.trunc(drag_speed * e.clientY - start_drag.y);
             animation_manager.new_task();
         }
 
