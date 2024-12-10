@@ -3,7 +3,8 @@
 const board_length = 8; // 8x8 grid
 const square_size = 10; // size of each square (px)
 const board_margin = 4; // margin outside boards
-const board_skip = 120; 
+const board_skip_x = 120;
+const board_skip_y = 180;
 
 class AnimationManager
 {
@@ -18,9 +19,9 @@ class AnimationManager
             let time_diff = 20;
             if(time_now)
             {
-                time_diff = time_now - this.time_record;
+                time_diff = Math.min(time_now - this.time_record,100);
                 this.time_record = time_now;
-                console.log(`now ${time_now}  diff ${time_diff}`);
+                //console.log(`now ${time_now}  diff ${time_diff}`);
             }
             callback(time_diff, this.stop_animation);
             if(this.running)
@@ -51,8 +52,8 @@ class Camera
     }
     close_to(camera)
     {
-        return Math.abs(this.x-camera.x) < 1 
-            && Math.abs(this.y-camera.y) < 1 
+        return Math.abs(this.x-camera.x) < 0.1 
+            && Math.abs(this.y-camera.y) < 0.1 
             && Math.abs(this.scale/camera.scale - 1) < 0.02;
     }
 
@@ -92,6 +93,7 @@ class Camera
 let camera_now = new Camera(0,0,-1.0);
 let camera_target = new Camera(0,0,-1.0);
 let cursor_coordinate = {x:0, y:0};
+let focus = {'l':0, 't':0, 'c':0};
 
 //dummy function that does nothing
 let draw_boards = (context) => null;
@@ -110,34 +112,25 @@ function draw(time_diff, stop_animation) {
     context.scale(scale, scale);
     context.translate(camera_now.x, camera_now.y);
 
-    draw_boards(context);
-    /*
-    context.beginPath(); // begin custom shape
-    context.moveTo(-119, -20);
-    context.bezierCurveTo(-159, 0, -159, 50, -59, 50);
-    context.bezierCurveTo(-39, 80, 31, 80, 51, 50);
-    context.bezierCurveTo(131, 50, 131, 20, 101, 0);
-    context.bezierCurveTo(141, -60, 81, -70, 51, -50);
-    context.bezierCurveTo(31, -95, -39, -80, -39, -50);
-    context.bezierCurveTo(-89, -95, -139, -80, -119, -20);
-    context.closePath(); // complete custom shape
-    var grd = context.createLinearGradient(-59, -100, 81, 100);
-    grd.addColorStop(0, "#FFD700"); // light blue
-    grd.addColorStop(1, "#CD853F"); // dark blue
-    context.fillStyle = grd;
-    context.fill();
-
-    context.lineWidth = 5;
-    context.strokeStyle = "#CD853F";
-    context.stroke();
-    context.drawImage(svg_images['Q'], 0, 0, 32, 32);
-    */
+    // calculate drawing area
+    let upleft_corner = camera_now.inverse({x:0, y:0});
+    let downright_corner = camera_now.inverse({x:canvas.width, y:canvas.height});
+    let l_min = Math.floor(upleft_corner.y / board_skip_y);
+    let v_min = Math.floor(upleft_corner.x / board_skip_x);
+    let l_max = Math.ceil(downright_corner.y / board_skip_y);
+    let v_max = Math.ceil(downright_corner.x / board_skip_x);
+    
+    // draw the chessboard
+    draw_boards(context, l_min, l_max, v_min, v_max);
+    
+    // origin indicator (for debugging)
     context.fillRect(0,0,10,10);
-    status_camera.innerHTML = `camera_target: x = ${camera_target.x.toFixed(2)} `
+
+    /* status_camera.innerHTML = `camera_target: x = ${camera_target.x.toFixed(2)} `
     + `y = ${camera_target.y.toFixed(2)} `
     + `scale = ${camera_target.scale.toFixed(2)} camera_now: x = ${camera_now.x.toFixed(2)} `
     + `y = ${camera_now.y.toFixed(2)} `
-    + `scale = ${camera_now.scale.toFixed(2)} `;
+    + `scale = ${camera_now.scale.toFixed(2)} `; */
     context.restore();
     //if the camera has not moved to the designated location, draw next frame
     if( camera_now.x == camera_target.x 
@@ -161,8 +154,8 @@ window.onload = function() {
     function go_to_center() {
         let actual_scale = canvas.width/120;
         camera_target.scale = Math.log2(actual_scale);
-        camera_target.x = 0;
-        camera_target.y = 0;
+        camera_target.x = - board_skip_x * (focus.t << 1 | focus.c) - board_length * square_size/2;
+        camera_target.y = - board_skip_y * (focus.l) - board_length * square_size/2;
         animation_manager.new_task();
     }
 

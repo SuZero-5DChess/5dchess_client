@@ -30,7 +30,40 @@ def handle_request(data):
                 'c':1,
                 'fen':'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
             },
-        ]
+            {
+                'l':0,
+                't':1,
+                'c':1,
+                'fen':'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR'
+            },
+            {
+                'l':0,
+                't':2,
+                'c':0,
+                'fen':'rnbqkb1r/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR'
+            },
+            {
+                'l':-1,
+                't':1,
+                'c':0,
+                'fen':'rnbqkbnr/pppppppp/6n1/8/8/8/PPPPPPPP/RNBQKBNR'
+            },
+        ],
+        "focus": {
+            'l':-1,
+            't':1,
+            'c':0
+        },
+        "highlights": {
+            '#ffff80': [
+                {'l':0, 't':1, 'c':1, 'x':4, 'y':1},
+                {'l':0, 't':1, 'c':1, 'x':4, 'y':2},
+            ],
+            '#8080ff': [
+                {'l':0, 't':2, 'c':0, 'x':6, 'y':7},
+                {'l':-1, 't':1, 'c':0, 'x':6, 'y':5},
+            ],
+        }
     }
     emit('response_data', response)
 
