@@ -1,7 +1,7 @@
 5D Chess Client
 =================
 
-This is a software that helps displaying 5d chessboard. WIP.
+This is a software that helps displaying 5d chessboard. It is also capable of reporting which squre is clicked. WIP.
 
 ### How to use?
 

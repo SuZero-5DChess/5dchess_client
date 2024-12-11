@@ -7,6 +7,9 @@ function requestData() {
     socket.emit('request_data', { request: 'Send me user data!' });
 }
 
+function report_click(l, t, c, x, y) {
+    socket.emit('click', {l: l, t: t, c: c, x: x, y: y});
+}
 
 // Listen for the response from the server
 socket.on('response_data', function(data) {
@@ -14,6 +17,8 @@ socket.on('response_data', function(data) {
     let record = {};
     let filtered_board_data = [];
     let filtered_highlight_data = {};
+    let filtered_arrow_data = [];
+    
     //document.getElementById('output').textContent = JSON.stringify(data, null, 2);
     draw_boards = function(context, l_min=-Infinity, l_max=Infinity, v_min=-Infinity, v_max=Infinity) {
         if(![l_min,l_max,v_min,v_max].every((v,i)=> v === record[i]))
@@ -25,11 +30,26 @@ socket.on('response_data', function(data) {
             filtered_highlight_data = {};
             if(data.highlights)
             {
-                for(let color in data.highlights)
+                for(let color_block of data.highlights)
                 {
-                    filtered_highlight_data[color] = data.highlights[color].filter((pos) => {
+                    filtered_highlight_data[color_block.color] = color_block.coordinates.filter((pos) => {
                         let l = pos.l, v = pos.t << 1 | pos.c;
                         return !(l < l_min || l > l_max || v < v_min || v > v_max);
+                    });
+                }
+            }
+            if(data.arrows)
+            {
+                for(let setting_block of data.arrows)
+                {
+                    filtered_arrow_data.push({
+                        'color':setting_block.color,
+                        'coordinates': setting_block.coordinates.filter((pos) => {
+                            let l1 = pos.from.l, v1 = pos.from.t << 1 | pos.from.c;
+                            let l2 = pos.to.l, v2 = pos.to.t << 1 | pos.to.c;
+                            return !(l1 < l_min || l1 > l_max || v1 < v_min || v1 > v_max)
+                                 ||!(l2 < l_min || l2 > l_max || v2 < v_min || v2 > v_max);
+                        })
                     });
                 }
             }
@@ -88,18 +108,26 @@ socket.on('response_data', function(data) {
         }
 
         // layer 3: highlighted squares
+        function get_coordinate(pos)
+        {
+            const l = pos.l, v = pos.t << 1 | pos.c;
+            // the boards's origin is (shift_x, shify_y)
+            const shift_x = v*board_skip_x;
+            const shift_y = l*board_skip_y;
+            return [pos.x*square_size + shift_x, (board_length-1-pos.y)*square_size + shift_y];
+        }
+
+        context.save();
+        context.globalAlpha = 0.5;
         for(let color in filtered_highlight_data)
         {
             context.fillStyle = color;
             for(let pos of filtered_highlight_data[color])
             {
-                let l = pos.l, v = pos.t << 1 | pos.c;
-                // the boards's origin is (shift_x, shify_y)
-                const shift_x = v*board_skip_x;
-                const shift_y = l*board_skip_y;
-                context.fillRect(pos.x*square_size + shift_x, (board_length-1-pos.y)*square_size + shift_y, square_size, square_size);
+                context.fillRect(...get_coordinate(pos), square_size, square_size);
             }
         }
+        context.restore();
 
         // layer 4: pieces
         for(const board of filtered_board_data)
@@ -122,6 +150,24 @@ socket.on('response_data', function(data) {
                 }
             }
         }
+
+        // layer 5: arrows
+        for(const setting_block of filtered_arrow_data)
+        {
+            context.save();
+            context.beginPath();
+            context.fillStyle = setting_block.color;
+            context.strokeStyle = setting_block.color;
+            for(const arrow of setting_block.coordinates)
+            {
+                const [from_x, from_y] = get_coordinate(arrow.from);
+                const [to_x, to_y] = get_coordinate(arrow.to);
+                const r = square_size/2;
+                canvas_arrow(context, from_x+r, from_y+r, to_x+r, to_y+r);
+            }
+            context.stroke();
+            context.restore();
+        }
     }
     if(data.focus)
     {
@@ -130,3 +176,15 @@ socket.on('response_data', function(data) {
 
     animation_manager.new_task();
 });
+
+function canvas_arrow(context, fromx, fromy, tox, toy) {
+    var headlen = 3; // length of head in pixels
+    var dx = tox - fromx;
+    var dy = toy - fromy;
+    var angle = Math.atan2(dy, dx);
+    context.moveTo(fromx, fromy);
+    context.lineTo(tox, toy);
+    context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+    context.moveTo(tox, toy);
+    context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+}

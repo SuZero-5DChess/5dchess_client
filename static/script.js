@@ -164,6 +164,7 @@ window.onload = function() {
     var start_drag = {x:0, y:0};
     // drag speed
     const speed_factor = 1.0;
+    let drag_flag = false;
 
     document.getElementById("center").addEventListener("click", go_to_center, false);
 
@@ -173,10 +174,30 @@ window.onload = function() {
         let drag_speed = speed_factor / 2**camera_now.scale;
         start_drag.x = drag_speed * e.clientX - camera_target.x;
         start_drag.y = drag_speed * e.clientY - camera_target.y;
+        drag_flag = false;
     });
 
     canvas.addEventListener("mouseup", function(e) {
         is_mouse_down = false;
+        if(!drag_flag)
+        {
+            var rect = canvas.getBoundingClientRect();
+            let mouse_pos = {
+                x: (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+                y: (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+            };
+            cursor_coordinate = camera_now.inverse(mouse_pos);
+            let l = Math.floor(cursor_coordinate.y/board_skip_y);
+            let v = Math.floor(cursor_coordinate.x/board_skip_x);
+            let c = v & 1, t = v >> 1;
+            let x = Math.floor((cursor_coordinate.x - v*board_skip_x)/square_size);
+            let y = 7 - Math.floor((cursor_coordinate.y - l*board_skip_y)/square_size);
+            status.innerHTML = `click at ${[l,t,c,x,y]}`;
+            if(x < 8 && y >= 0)
+            {
+                report_click(l, t, c, x, y);
+            }
+        }
     });
 
     canvas.addEventListener("mouseover", function(e) {
@@ -203,6 +224,7 @@ window.onload = function() {
         cursor_coordinate = camera_now.inverse(mouse_pos);
         status.innerHTML = `x = ${cursor_coordinate.x.toFixed(2)} y = ${cursor_coordinate.y.toFixed(2)}`;
         //status.innerHTML = `x = ${mouse_pos.x} y = ${mouse_pos.y}`;
+        drag_flag = true;
     });
 
     const scale_factor = -0.005;
