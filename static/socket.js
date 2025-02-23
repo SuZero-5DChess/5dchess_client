@@ -72,9 +72,16 @@ socket.on('response_data', function(data) {
             {
                 if((l+t)%2===0)
                 {
-                    context.fillRect(t*2*board_skip_x-background_shift_x,l*board_skip_y-background_shift_y,2*board_skip_x,board_skip_y);
+                    context.fillRect(t*2*board_skip_x-background_shift_x,l*board_skip_y-background_shift_y, 2*board_skip_x, board_skip_y);
                 }
             }
+        }
+        //draw present column
+        if(data.present)
+        {
+            let t = data.present.t, c = data.present.c;
+            context.fillStyle = 'rgba(219,172,52,0.4)';
+            context.fillRect((t*2+c)*board_skip_x-background_shift_x, l_min*board_skip_y-background_shift_y, board_skip_x, (l_max-l_min+1)*board_skip_y);
         }
 
         // layer 2: boards

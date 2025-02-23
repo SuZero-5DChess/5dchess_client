@@ -58,6 +58,10 @@ def handle_request(data):
                 'fen':'rnbqkbnr/pppppppp/6n1/8/8/8/PPPPPPPP/RNBQKBNR'
             },
         ],
+        "present": {
+            't':1,
+            'c':0,
+        },
         "focus": {
             'l':-1,
             't':1,
