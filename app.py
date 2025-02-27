@@ -9,6 +9,11 @@ socketio = SocketIO(app)
 def index():
     return render_template('index.html')
 
+# Load Browser Favorite Icon
+@app.route('/favicon.ico')
+def favicon():
+    return url_for('static', filename='favicon.ico')
+
 @socketio.on('click')
 def handle_click(data):
     l = data['l']
@@ -22,6 +27,9 @@ def handle_click(data):
 def handle_request(data):
     print(f"Received request for data: {data}")
     response = {
+        'submit-button': None,
+        'undo-button': 'enabled',
+        'redo-button': 'disabled',
         'metadata': {
             "size" : "8x8",
             "mode" : "odd"
@@ -96,6 +104,18 @@ def handle_request(data):
         ]
     }
     emit('response_data', response)
+
+@socketio.on('request_undo')
+def handle_undo():
+    print('client requests undo')
+
+@socketio.on('request_redo')
+def handle_undo():
+    print('client requests redo')
+
+@socketio.on('request_submit')
+def handle_undo():
+    print('client requests submit')
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

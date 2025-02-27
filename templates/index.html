@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <title>Frontend Demo</title>
   <script>
     const svg_file_mapping = {
@@ -34,27 +35,36 @@
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="{{ url_for('static', filename='canvas.js') }}"></script>
   <script src="{{ url_for('static', filename='piece.js') }}"></script>
   <script src="{{ url_for('static', filename='socket.js') }}"></script>
   <script src="{{ url_for('static', filename='parse.js') }}"></script>
+  <script src="{{ url_for('static', filename='onload.js') }}"></script>
 </head>
 <body>
-  <h1>Get Data with WebSocket and Print</h1>
-  <button onclick="requestData()">Request Data</button>
-  <pre id="output"></pre>
-  <div id="display_wrapper">
-      <noscript>Javascript is disabled.</noscript>
-      <canvas id="display" width="800" height="800">
-        Your browser does not support canvas object.
-      </canvas>
-      <div id="buttons_wrapper">
-        <input type="button" id="center" value="z">
-      </div>
+  <canvas id="display"></canvas>
+    
+  <!-- Top Buttons -->
+  <div id="top-buttons">
+      <button class="btn" id="undo-btn" onclick="request_undo()">Undo</button>
+      <button class="btn" id="redo-btn" onclick="request_redo()">Redo</button>
+      <button class="btn btn-primary" id="submit-btn" onclick="request_submit()">Submit</button>
   </div>
-  <div>
-      <p id="camera">camera_now info</p>
-      <p id="status">status bar has nothing to say yet</p>
+  
+  <!-- Status Bar -->
+  <div id="status-bar">
+    <p id="camera">camera_now info</p>
+    <p id="status">status bar has nothing to say yet</p>
   </div>
+  
+  <!-- Right Toggle Button -->
+  
+  <div id="right-buttons">
+    <button id="center-btn" class="btn">Center</button>
+    <button id="toggle-text" class="btn">Toggle Text</button>
+  </div>
+  
+  <!-- Floating Text Window -->
+  <div id="text-window">Text Window Content</div>
 </body>
 </html>

@@ -42,13 +42,13 @@ class AnimationManager
 
 class Camera
 {
+    // Next two are dummy value, please change them before using .inverse()
+    static center_shift_x = 0.0;
+    static center_shift_y = 0.0;
     constructor(x, y, scale) {
         this.x = x;
         this.y = y;
         this.scale = scale;
-        // Next two are dummy value, please change them before using .inverse()
-        this.center_shift_x = 0;
-        this.center_shift_y = 0; 
     }
     close_to(camera)
     {
@@ -84,14 +84,14 @@ class Camera
     inverse(point)
     {
         const t = 1.0 / 2**this.scale;
-        return { x: t * (point.x - this.center_shift_x) - this.x,
-                 y: t * (point.y - this.center_shift_y) - this.y };
+        return { x: t * (point.x - Camera.center_shift_x) - this.x,
+                 y: t * (point.y - Camera.center_shift_y) - this.y };
     }
 }
 
 
-let camera_now = new Camera(0,0,-1.0);
-let camera_target = new Camera(0,0,-1.0);
+let camera_now = new Camera(0,0,-1.0,1.0);
+let camera_target = new Camera(0,0,-1.0,1.0);
 let cursor_coordinate = {x:0, y:0};
 let focus = {'l':0, 't':0, 'c':0};
 
@@ -107,8 +107,10 @@ function draw(time_diff, stop_animation) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
     let scale = 2**camera_now.scale;
-    let shift = canvas.width /2.0;
-    context.translate(shift, shift);
+    Camera.center_shift_x = canvas.width /2.0;
+    Camera.center_shift_y = canvas.height /2.0;
+
+    context.translate(Camera.center_shift_x, Camera.center_shift_y);
     context.scale(scale, scale);
     context.translate(camera_now.x, camera_now.y);
 
@@ -144,9 +146,12 @@ function draw(time_diff, stop_animation) {
 
 let animation_manager = new AnimationManager(draw);
 
-window.onload = function() {
+function setup_canvas() {
     let canvas = document.getElementById("display");
     let status = document.getElementById("status");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     camera_now.center_shift_x = canvas.width / 2;
     camera_now.center_shift_y = canvas.width / 2;
@@ -159,14 +164,13 @@ window.onload = function() {
         animation_manager.new_task();
     }
 
-    
     var is_mouse_down = false;
     var start_drag = {x:0, y:0};
     // drag speed
     const speed_factor = 1.0;
     let drag_flag = false;
 
-    document.getElementById("center").addEventListener("click", go_to_center, false);
+    document.getElementById("center-btn").addEventListener("click", go_to_center, false);
 
     // add event listeners to handle screen drag
     canvas.addEventListener("mousedown", function(e) {
@@ -192,7 +196,7 @@ window.onload = function() {
             let c = v & 1, t = v >> 1;
             let x = Math.floor((cursor_coordinate.x - v*board_skip_x)/square_size);
             let y = 7 - Math.floor((cursor_coordinate.y - l*board_skip_y)/square_size);
-            status.innerHTML = `click at ${[l,t,c,x,y]}`;
+            status.innerHTML = `click at (${l}T${t}${c?'b':'w'})${String.fromCharCode(97 + x)}${y+1}`;
             if(x < 8 && y >= 0)
             {
                 report_click(l, t, c, x, y);

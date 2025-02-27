@@ -3,7 +3,7 @@
 const socket = io();
 
 // Function to request data from the server
-function requestData() {
+function request_data() {
     socket.emit('request_data', { request: 'Send me user data!' });
 }
 
@@ -11,9 +11,60 @@ function report_click(l, t, c, x, y) {
     socket.emit('click', {l: l, t: t, c: c, x: x, y: y});
 }
 
+function request_undo() {
+    if(request_undo.enabled)
+    {
+        socket.emit('request_undo');
+    }
+}
+
+function request_redo() {
+    if(request_redo.enabled)
+    {
+        socket.emit('request_redo');
+    }
+}
+
+function request_submit() {
+    if(request_submit.enabled)
+    {
+        socket.emit('request_submit');
+    }
+}
+
 // Listen for the response from the server
 socket.on('response_data', function(data) {
     console.log('Data received from server:', data);
+
+    function change_btn_status(btn, status, callback)
+    {
+        if(status)
+        {
+            btn.style.display = 'block';
+            if(status == "enabled")
+            {
+                btn.classList.remove('btn-inactive');
+                btn.classList.add('btn-active');
+                callback.enabled = true;
+            }
+            else if(status == "disabled")
+            {
+                btn.classList.remove('btn-active');
+                btn.classList.add('btn-inactive');
+                callback.enabled = false;
+            }
+        }
+        else
+        {
+            btn.style.display = 'none';
+            callback.enabled = true;
+        }
+    }
+
+    change_btn_status(document.getElementById('submit-btn'), data['submit-button'], request_submit);
+    change_btn_status(document.getElementById('undo-btn'), data['undo-button'], request_undo);
+    change_btn_status(document.getElementById('redo-btn'), data['redo-button'], request_redo);
+    
     let record = {};
     let filtered_board_data = [];
     let filtered_highlight_data = {};
@@ -27,7 +78,7 @@ socket.on('response_data', function(data) {
                 let l = board.l, v = board.t << 1 | board.c;
                 return !(l < l_min || l > l_max || v < v_min || v > v_max || board.fen == null);
             });
-            filtered_highlight_data = {};
+            filtered_highlight_data = [];
             if(data.highlights)
             {
                 for(let color_block of data.highlights)

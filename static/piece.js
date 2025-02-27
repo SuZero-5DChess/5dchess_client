@@ -5,7 +5,7 @@
 const svg_images = {};
 
 // Function to load a single SVG and return a promise
-function loadSvg(baseName, filename) {
+function load_svg(baseName, filename) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         const svgUrl = `${filename}`;  // Adjust path if needed
@@ -23,7 +23,7 @@ function loadSvg(baseName, filename) {
 
 // Load all SVGs concurrently
 const loadPromises = Object.entries(svg_file_mapping).map(([baseName, filename]) =>
-    loadSvg(baseName, filename)
+    load_svg(baseName, filename)
 );
 
 // Once all SVGs are loaded, or if any fail, handle the result
