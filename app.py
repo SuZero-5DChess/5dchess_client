@@ -68,7 +68,7 @@ def handle_request(data):
         ],
         "present": {
             't':1,
-            'c':0,
+            'c':1,
         },
         "focus": {
             'l':-1,
@@ -90,17 +90,19 @@ def handle_request(data):
                     {'l':-1, 't':1, 'c':1, 'x':6, 'y':5},
                 ]
             },
-        ],
-        "arrows": [
             {
                 'color': '#80cc3f',
-                'coordinates': [
+                'arrows': [
                     {
                         'from': {'l':0, 't':2, 'c':0, 'x':6, 'y':7},
                         'to': {'l':0, 't':1, 'c':0, 'x':6, 'y':5},
                     }
                 ]
-            }
+            },
+            {
+                'color': '#7070ff',
+                'timelines': [-1,],
+            },
         ]
     }
     emit('response_data', response)

@@ -20,7 +20,7 @@ function parse_FEN(fen)
             	}
                 else
                 {
-              	throw new Error('Invalid FEN format: invalid piece:'+ char);
+              	    throw new Error('Invalid FEN format: invalid piece:'+ char);
                 }
             }
             else
