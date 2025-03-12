@@ -13,11 +13,11 @@ Additional functionalities:
 
 + Report which square is clicked to the server.
 
-+ Three optional buttons, <button>Undo</button>, <button>Redo</button>, and <button>Submit</button>. If pressed, the server will recieve a request. These buttons can be turned on/off from server side.
++ Three optional buttons, <kbd>Undo</kbd>, <kbd>Redo</kbd>, and <kbd>Submit</kbd>. If pressed, the server will recieve a request. These buttons can be turned on/off from server side.
 
 + A toggable text window.
 
-+ Additional <button>Submit</button> and <button>Screenshot</button> buttons.
++ Additional <kbd>Submit</kbd> and <kbd>Screenshot</kbd> buttons.
 
 *Remark.* This software is front-end only, with just a dummy python flask server for demonstration. It does not make moves or detect checkmate.
 
@@ -59,6 +59,6 @@ A colored block is a dict with following entries:
 | Key in colored block |                                         Allowed Value                                         | Is This Mandatory? | Comments                                    |
 |:--------------------:|:---------------------------------------------------------------------------------------------:|:------------------:|---------------------------------------------|
 | `color`              | html color such as `'#fcff80'`                                                                | Yes                |                                             |
-| `coordinates`        | a list of dicts with keys `l`,`t` ,`c`,`x`,`y` (the ltcxy coordinate of squares)              | No                 | squares to be highlighted with this color   |
-| `arrows`             | a list of dicts with keys `from` and `to`  whose values are dicts containing ltcxy coordinate | No                 | arrows to be highlighted with this color    |
+| `coordinates`        | a list of dicts with keys `l`,`t` ,`c`,`x`,`y` (the LTCXY coordinate of squares)              | No                 | squares to be highlighted with this color   |
+| `arrows`             | a list of dicts with keys `from` and `to`  whose values are dicts containing LTCXY coordinate | No                 | arrows to be highlighted with this color    |
 | `timelines`          | a list of integers (in l axis)                                                                | No                 | timelines to be highlighted with this color |
