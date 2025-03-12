@@ -17,5 +17,26 @@ window.onload = function()
             toggleButton.classList.add('toggle-text-inactive');
         }
     });
+    document.getElementById('screenshot').addEventListener('click', () => {
+        let canvasImage = document.getElementById('display').toDataURL('image/png');
+        // this can be used to download any image from webpage to local disk
+        let xhr = new XMLHttpRequest();
+        xhr.responseType = 'blob';
+        xhr.onload = function () {
+            let a = document.createElement('a');
+            a.href = window.URL.createObjectURL(xhr.response);
+            function getTimestamp() {
+                const now = new Date();
+                return now.toISOString().replace(/\D/g, '').slice(0, 14);
+            }
+            a.download = `5dc_${getTimestamp()}.png`;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        };
+        xhr.open('GET', canvasImage); // This is to download the canvas Image
+        xhr.send();
+    });
     request_data();
 }

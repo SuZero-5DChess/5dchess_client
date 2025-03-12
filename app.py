@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, url_for
 from flask_socketio import SocketIO, emit
-import sys
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -22,6 +21,11 @@ def handle_click(data):
     x = chr(data['x']+ord('a'))
     y = chr(data['y']+ord('1'))
     print(f"Received mouse click: ({l}T{t}{c}){x}{y}")
+
+@socketio.on('right_click')
+def handle_right_click(data):
+    print("Recieved right click")
+    emit('response_text', 'The server writes: '+str(data))
 
 @socketio.on('request_data')
 def handle_request(data):

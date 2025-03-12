@@ -61,13 +61,7 @@ class Camera
     lean_to(camera, time_delta)
     {
         //console.log(`${this.x} ${this.y} ${camera.x} ${camera.y} ${time_delta}`);
-        if(this.close_to(camera))
-        {
-            this.x = camera.x
-            this.y = camera.y
-            this.scale = camera.scale
-        }
-        else
+        if(!this.close_to(camera))
         {
             // adjust the floating number for speed
             const lerp_factor = (1.0 - 1.0/(1.0 + time_delta * 0.005)); 
@@ -101,7 +95,7 @@ let draw_boards = (context) => null;
 function draw(time_diff, stop_animation) {
     var canvas = document.getElementById("display");
     var context = canvas.getContext("2d");
-    var status_camera = document.getElementById("camera");
+    //var status_camera = document.getElementById("camera");
 
     // clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -135,9 +129,7 @@ function draw(time_diff, stop_animation) {
     + `scale = ${camera_now.scale.toFixed(2)} `; */
     context.restore();
     //if the camera has not moved to the designated location, draw next frame
-    if( camera_now.x == camera_target.x 
-     && camera_now.x == camera_target.x
-     && camera_now.scale == camera_target.scale )
+    if( camera_now.close_to(camera_target) )
     {
         stop_animation();
     }
@@ -183,25 +175,36 @@ function setup_canvas() {
 
     canvas.addEventListener("mouseup", function(e) {
         is_mouse_down = false;
-        if(!drag_flag)
+        if(drag_flag) // if it is not a click, return
         {
-            var rect = canvas.getBoundingClientRect();
-            let mouse_pos = {
-                x: (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
-                y: (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
-            };
-            cursor_coordinate = camera_now.inverse(mouse_pos);
-            let l = Math.floor(cursor_coordinate.y/board_skip_y);
-            let v = Math.floor(cursor_coordinate.x/board_skip_x);
-            let c = v & 1, t = v >> 1;
-            let x = Math.floor((cursor_coordinate.x - v*board_skip_x)/square_size);
-            let y = 7 - Math.floor((cursor_coordinate.y - l*board_skip_y)/square_size);
-            status.innerHTML = `click at (${l}T${t}${c?'b':'w'})${String.fromCharCode(97 + x)}${y+1}`;
+            return;
+        }
+        var rect = canvas.getBoundingClientRect();
+        let mouse_pos = {
+            x: (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+            y: (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+        };
+        cursor_coordinate = camera_now.inverse(mouse_pos);
+        let l = Math.floor(cursor_coordinate.y/board_skip_y);
+        let v = Math.floor(cursor_coordinate.x/board_skip_x);
+        let c = v & 1, t = v >> 1;
+        let x = Math.floor((cursor_coordinate.x - v*board_skip_x)/square_size);
+        let y = 7 - Math.floor((cursor_coordinate.y - l*board_skip_y)/square_size);
+        let button = 'unknown';
+        if(e.button == 0) // left button
+        {
+            button = 'left';
             if(x < 8 && y >= 0)
             {
                 report_click(l, t, c, x, y);
             }
         }
+        if(e.button == 2) // right button
+        {
+            button = 'right';
+            report_right_click(l, t, c, x, y);
+        }
+        status.innerHTML = `${button} click at (${l}T${t}${c?'b':'w'})${String.fromCharCode(97 + x)}${y+1}`;
     });
 
     canvas.addEventListener("mouseover", function(e) {
@@ -229,6 +232,11 @@ function setup_canvas() {
         status.innerHTML = `x = ${cursor_coordinate.x.toFixed(2)} y = ${cursor_coordinate.y.toFixed(2)}`;
         //status.innerHTML = `x = ${mouse_pos.x} y = ${mouse_pos.y}`;
         drag_flag = true;
+    });
+
+    canvas.addEventListener("contextmenu", function(e) {
+        // disable the default right click menu
+        e.preventDefault();
     });
 
     const scale_factor = -0.005;

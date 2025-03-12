@@ -11,6 +11,10 @@ function report_click(l, t, c, x, y) {
     socket.emit('click', {l: l, t: t, c: c, x: x, y: y});
 }
 
+function report_right_click(l, t, c, x, y) {
+    socket.emit('right_click', {l: l, t: t, c: c, x: x, y: y});
+}
+
 function request_undo() {
     if(request_undo.enabled)
     {
@@ -31,6 +35,10 @@ function request_submit() {
         socket.emit('request_submit');
     }
 }
+
+socket.on('response_text', function(data) {
+    let textWindow = document.getElementById('text-window').innerHTML = data;
+});
 
 // Listen for the response from the server
 socket.on('response_data', function(data) {
