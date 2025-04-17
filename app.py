@@ -73,6 +73,7 @@ def handle_request(data):
         "present": {
             't':1,
             'c':1,
+            'color':'rgba(80,75,34,0.12)'
         },
         "focus": {
             'l':-1,
@@ -107,6 +108,13 @@ def handle_request(data):
                 'color': '#7070ff',
                 'timelines': [-1,],
             },
+            {
+                'color': '#cc2222',
+                'boards': [
+                    {'l':0, 't':2, 'c':0},
+                    {'l':-1, 't':1, 'c':1}
+                ]
+            }
         ]
     }
     emit('response_data', response)

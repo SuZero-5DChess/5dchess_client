@@ -38,5 +38,24 @@ window.onload = function()
         xhr.open('GET', canvasImage); // This is to download the canvas Image
         xhr.send();
     });
+    document.addEventListener("keydown", function(event) {
+        if (event.key === " ") 
+        {
+            go_to_center();
+        } 
+        else if (event.key === "Enter") 
+        {
+            request_submit();
+        }
+        else if (event.key === "z")
+        {
+            request_undo();
+        }
+        else if (event.key === "y")
+        {
+            request_redo();
+        }
+    });
+      
     request_data();
 }

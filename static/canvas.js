@@ -137,6 +137,7 @@ function draw(time_diff, stop_animation) {
 }
 
 let animation_manager = new AnimationManager(draw);
+let go_to_center = null;
 
 function setup_canvas() {
     let canvas = document.getElementById("display");
@@ -148,8 +149,8 @@ function setup_canvas() {
     camera_now.center_shift_x = canvas.width / 2;
     camera_now.center_shift_y = canvas.width / 2;
 
-    function go_to_center() {
-        let actual_scale = canvas.width/120;
+    go_to_center = () => {
+        let actual_scale = canvas.width/120/3;
         camera_target.scale = Math.log2(actual_scale);
         camera_target.x = - board_skip_x * (focus.t << 1 | focus.c) - board_length * square_size/2;
         camera_target.y = - board_skip_y * (focus.l) - board_length * square_size/2;

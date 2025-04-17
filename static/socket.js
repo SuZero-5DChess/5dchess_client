@@ -78,6 +78,7 @@ socket.on('response_data', function(data) {
     let filtered_coordinate_highlight = {};
     let filtered_arrow_highlight = {};
     let filtered_timeline_highlight = {};
+    let filtered_board_highlight = {};
     
     //document.getElementById('output').textContent = JSON.stringify(data, null, 2);
     draw_boards = function(context, l_min=-Infinity, l_max=Infinity, v_min=-Infinity, v_max=Infinity) {
@@ -113,6 +114,13 @@ socket.on('response_data', function(data) {
                         filtered_timeline_highlight[color_block.color] = color_block.timelines.filter((l) => {
                             return !(l < l_min || l > l_max);
                         });
+                    }
+                    if(color_block.boards)
+                    {
+                        filtered_board_highlight[color_block.color] = color_block.boards.filter((pos) =>{
+                            let l = pos.l, v = pos.t << 1 | pos.c;
+                            return !(l < l_min || l > l_max || v < v_min || v > v_max);
+                        })
                     }
                 }
             }
@@ -157,7 +165,8 @@ socket.on('response_data', function(data) {
         if(data.present)
         {
             let t = data.present.t, c = data.present.c;
-            context.fillStyle = 'rgba(219,172,52,0.4)';
+            let color = data.present.color || 'rgba(219,172,52,0.4)';
+            context.fillStyle = color;
             context.fillRect((t*2+c)*board_skip_x-background_shift_x, l_min*board_skip_y-background_shift_y, board_skip_x, (l_max-l_min+1)*board_skip_y);
         }
         
@@ -174,6 +183,26 @@ socket.on('response_data', function(data) {
             context.fillRect(shift_x - board_margin, shift_y - board_margin,
                 board_length*square_size + 2*board_margin,
                 board_length*square_size + 2*board_margin);
+        }
+        for(let color in filtered_board_highlight)
+        {
+            context.fillStyle = color;
+            for(let pos of filtered_board_highlight[color])
+            {
+                let l = pos.l, v = pos.t << 1 | pos.c;
+                const shift_x = v*board_skip_x;
+                const shift_y = l*board_skip_y;
+                context.fillRect(shift_x - board_margin, shift_y - board_margin,
+                    board_length*square_size + 2*board_margin,
+                    board_length*square_size + 2*board_margin);
+            }
+        }
+        for(const board of filtered_board_data)
+        {
+            let l = board.l, v = board.t << 1 | board.c;
+            // the boards's origin is (shift_x, shify_y)
+            const shift_x = v*board_skip_x;
+            const shift_y = l*board_skip_y;
             //draw checkerboard
             context.fillStyle = '#7f7f7f';
             context.fillRect(shift_x, shift_y, board_length*square_size, board_length*square_size);
