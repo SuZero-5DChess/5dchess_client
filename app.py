@@ -34,9 +34,9 @@ def handle_request(data):
         'submit-button': None,
         'undo-button': 'enabled',
         'redo-button': 'disabled',
-        'metadata': {
-            "size" : "8x8",
-            "mode" : "odd"
+        'size': {
+            'x': 8,
+            'y': 8
         },
         'boards': [
             {
@@ -75,11 +75,18 @@ def handle_request(data):
             'c':1,
             'color':'rgba(80,75,34,0.12)'
         },
-        "focus": {
-            'l':-1,
-            't':1,
-            'c':1
-        },
+        "focus": [
+            {
+                'l':-1,
+                't':1,
+                'c':1
+            },
+            {    
+                'l':0,
+                't':1,
+                'c':1
+            }
+        ],
         "highlights": [
             {
                 'color': '#ffff80',

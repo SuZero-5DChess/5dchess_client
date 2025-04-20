@@ -1,10 +1,11 @@
 'use strict';
 
-const board_length = 8; // 8x8 grid
+let board_length_x = 8; // 8x8 grid
+let board_length_y = 8;
 const square_size = 10; // size of each square (px)
 const board_margin = 4; // margin outside boards
-const board_skip_x = 120;
-const board_skip_y = 180;
+let board_skip_x = 100;
+let board_skip_y = 122;
 
 class AnimationManager
 {
@@ -64,7 +65,7 @@ class Camera
         if(!this.close_to(camera))
         {
             // adjust the floating number for speed
-            const lerp_factor = (1.0 - 1.0/(1.0 + time_delta * 0.005)); 
+            const lerp_factor = (1.0 - 1.0/(1.0 + time_delta * 0.01)); 
             this.x += (camera.x - this.x) * lerp_factor;
             this.y += (camera.y - this.y) * lerp_factor;
             this.scale += (camera.scale - this.scale) * lerp_factor;
@@ -87,7 +88,8 @@ class Camera
 let camera_now = new Camera(0,0,-1.0,1.0);
 let camera_target = new Camera(0,0,-1.0,1.0);
 let cursor_coordinate = {x:0, y:0};
-let focus = {'l':0, 't':0, 'c':0};
+let focus = [{'l':0, 't':0, 'c':0}];
+let focus_index = 0;
 
 //dummy function that does nothing
 let draw_boards = (context) => null;
@@ -150,11 +152,20 @@ function setup_canvas() {
     camera_now.center_shift_y = canvas.width / 2;
 
     go_to_center = () => {
-        let actual_scale = canvas.width/120/3;
-        camera_target.scale = Math.log2(actual_scale);
-        camera_target.x = - board_skip_x * (focus.t << 1 | focus.c) - board_length * square_size/2;
-        camera_target.y = - board_skip_y * (focus.l) - board_length * square_size/2;
-        animation_manager.new_task();
+        focus_index += 1;
+        if(focus_index >= focus.length)
+        {
+            focus_index = 0;
+        }
+        if(focus[focus_index])
+        {
+            let t = focus[focus_index].t, l = focus[focus_index].l, c = focus[focus_index].c;
+            let actual_scale = canvas.width/120/3;
+            camera_target.scale = Math.log2(actual_scale);
+            camera_target.x = - board_skip_x * (t << 1 | c) - board_length_x * square_size/2;
+            camera_target.y = - board_skip_y * (l) - board_length_y * square_size/2;
+            animation_manager.new_task();
+        }
     }
 
     var is_mouse_down = false;
@@ -190,7 +201,7 @@ function setup_canvas() {
         let v = Math.floor(cursor_coordinate.x/board_skip_x);
         let c = v & 1, t = v >> 1;
         let x = Math.floor((cursor_coordinate.x - v*board_skip_x)/square_size);
-        let y = 7 - Math.floor((cursor_coordinate.y - l*board_skip_y)/square_size);
+        let y = board_length_y - 1 - Math.floor((cursor_coordinate.y - l*board_skip_y)/square_size);
         let button = 'unknown';
         if(e.button == 0) // left button
         {
@@ -245,6 +256,9 @@ function setup_canvas() {
     canvas.addEventListener("wheel", function(e) {
         e.preventDefault();
         camera_target.scale += e.deltaY * scale_factor;
+        camera_target.scale = Math.min(7.0, camera_target.scale);
+        camera_target.scale = Math.max(-5.0, camera_target.scale);
+        status.innerHTML = `Zoom to scale=${camera_target.scale}`;
         animation_manager.new_task();
     });
 

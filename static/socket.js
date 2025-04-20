@@ -72,6 +72,14 @@ socket.on('response_data', function(data) {
     change_btn_status(document.getElementById('submit-btn'), data['submit-button'], request_submit);
     change_btn_status(document.getElementById('undo-btn'), data['undo-button'], request_undo);
     change_btn_status(document.getElementById('redo-btn'), data['redo-button'], request_redo);
+
+    if(data.size)
+    {
+        board_length_x = data.size.x;
+        board_length_y = data.size.y;
+        board_skip_x = board_length_x * square_size + 20;
+        board_skip_y = Math.max(board_length_y * square_size + 20, Math.floor(board_skip_x * 1.12));
+    }
     
     let record = {};
     let filtered_board_data = [];
@@ -133,8 +141,8 @@ socket.on('response_data', function(data) {
         status_camera.innerHTML = `(L${l_min}V${v_min}) -- (L${l_max}V${v_max})`;
 
         // layer 1 (bottom): grids on multiverse 
-        const background_shift_x = (board_skip_x - square_size * board_length)/2;
-        const background_shift_y = (board_skip_y - square_size * board_length)/2;
+        const background_shift_x = (board_skip_x - square_size * board_length_x)/2;
+        const background_shift_y = (board_skip_y - square_size * board_length_y)/2;
         context.fillStyle = '#ffffff';
         context.fillRect(v_min*board_skip_x-background_shift_x,l_min*board_skip_y-background_shift_y,(v_max-v_min+1)*board_skip_x,(l_max-l_min+1)*board_skip_y);
         
@@ -181,8 +189,8 @@ socket.on('response_data', function(data) {
             //draw margin
             context.fillStyle = (board.c==1) ? '#555555' : '#dfdfdf';
             context.fillRect(shift_x - board_margin, shift_y - board_margin,
-                board_length*square_size + 2*board_margin,
-                board_length*square_size + 2*board_margin);
+                board_length_x*square_size + 2*board_margin,
+                board_length_y*square_size + 2*board_margin);
         }
         for(let color in filtered_board_highlight)
         {
@@ -193,8 +201,8 @@ socket.on('response_data', function(data) {
                 const shift_x = v*board_skip_x;
                 const shift_y = l*board_skip_y;
                 context.fillRect(shift_x - board_margin, shift_y - board_margin,
-                    board_length*square_size + 2*board_margin,
-                    board_length*square_size + 2*board_margin);
+                    board_length_x*square_size + 2*board_margin,
+                    board_length_y*square_size + 2*board_margin);
             }
         }
         for(const board of filtered_board_data)
@@ -205,11 +213,11 @@ socket.on('response_data', function(data) {
             const shift_y = l*board_skip_y;
             //draw checkerboard
             context.fillStyle = '#7f7f7f';
-            context.fillRect(shift_x, shift_y, board_length*square_size, board_length*square_size);
+            context.fillRect(shift_x, shift_y, board_length_x*square_size, board_length_y*square_size);
             context.fillStyle = '#cccccc';
-            for(let row = 0; row < board_length; row++) 
+            for(let row = 0; row < board_length_y; row++) 
             {
-                for(let col = 0; col < board_length; col++)
+                for(let col = 0; col < board_length_x; col++)
                 {
                     if((row + col) % 2 === 0)
                     {
@@ -228,7 +236,7 @@ socket.on('response_data', function(data) {
             // the boards's origin is (shift_x, shify_y)
             const shift_x = v*board_skip_x;
             const shift_y = l*board_skip_y;
-            return [pos.x*square_size + shift_x, (board_length-1-pos.y)*square_size + shift_y];
+            return [pos.x*square_size + shift_x, (board_length_y-1-pos.y)*square_size + shift_y];
         }
 
         context.save();
@@ -252,9 +260,9 @@ socket.on('response_data', function(data) {
             const shift_y = l*board_skip_y;
             //parse
             let parsed_board = parse_FEN(board.fen);
-            for(let row = 0; row < board_length; row++) 
+            for(let row = 0; row < board_length_y; row++) 
             {
-                for(let col = 0; col < board_length; col++)
+                for(let col = 0; col < board_length_x; col++)
                 {
                     const piece = parsed_board[row][col];
                     if(isNaN(piece))
