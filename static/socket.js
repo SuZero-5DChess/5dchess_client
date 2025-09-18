@@ -116,6 +116,7 @@ socket.on('response_data', function(data) {
                             return !(l1 < l_min || l1 > l_max || v1 < v_min || v1 > v_max)
                                 ||!(l2 < l_min || l2 > l_max || v2 < v_min || v2 > v_max);
                         });
+                        //console.log("filtered arrows:", filtered_arrow_highlight);
                     }
                     if(color_block.timelines)
                     {
@@ -277,17 +278,32 @@ socket.on('response_data', function(data) {
         for(let color in filtered_arrow_highlight)
         {
             context.save();
-            context.beginPath();
-            context.fillStyle = color;
-            context.strokeStyle = color;
+            context.globalAlpha = 0.8;
+            context.lineWidth = 1;
             for(let arrow of filtered_arrow_highlight[color])
             {
+                context.save();
+                //console.log("drawing arrow:",arrow);
                 const [from_x, from_y] = get_coordinate(arrow.from);
                 const [to_x, to_y] = get_coordinate(arrow.to);
                 const r = square_size/2;
                 canvas_arrow(context, from_x+r, from_y+r, to_x+r, to_y+r);
+                const gradient = context.createLinearGradient(from_x+r, from_y+r, to_x+r, to_y+r);
+                let u = board_length_x/2.0/Math.sqrt((from_x-to_x)**2+(from_y-to_y)**2);
+                gradient.addColorStop(0, "rgba(255,255,255,0.0)");
+                gradient.addColorStop(u/3, "rgba(255,255,255,0.0)");
+                gradient.addColorStop(u, "rgba(255,255,255,0.8)");
+                gradient.addColorStop(1, color);
+                //context.clip();
+                context.fillStyle = gradient;
+                context.fill();
+                // const gradient2 = context.createLinearGradient(from_x+r, from_y+r, to_x+r, to_y+r);
+                // gradient2.addColorStop(0, "rgba(255,255,255,0.0)");
+                // gradient2.addColorStop(0.1, "rgba(255,255,255,1.0)");
+                // context.strokeStyle = gradient2;
+                //context.stroke();
+                context.restore();
             }
-            context.stroke();
             context.restore();
         }
     }
@@ -300,13 +316,34 @@ socket.on('response_data', function(data) {
 });
 
 function canvas_arrow(context, fromx, fromy, tox, toy) {
-    var headlen = 3; // length of head in pixels
+    const headlen = 8; // length of head in pixels
+    const width = 3/2; // with of the arrow line
+    const tip_span = Math.PI / 7; // angle between arrow line and arrow tip side
     var dx = tox - fromx;
     var dy = toy - fromy;
     var angle = Math.atan2(dy, dx);
-    context.moveTo(fromx, fromy);
-    context.lineTo(tox, toy);
-    context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
-    context.moveTo(tox, toy);
-    context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+    
+    // Calculate the angles for the arrowhead
+    var leftAngle = angle - tip_span;
+    var rightAngle = angle + tip_span;
+
+    // Coordinates of the triangle tip
+    var leftX = tox - headlen * Math.cos(leftAngle);
+    var leftY = toy - headlen * Math.sin(leftAngle);
+    var rightX = tox - headlen * Math.cos(rightAngle);
+    var rightY = toy - headlen * Math.sin(rightAngle);
+
+    let midx = tox - headlen * Math.cos(tip_span) * Math.cos(angle);
+    let midy = toy - headlen * Math.cos(tip_span) * Math.sin(angle);
+
+    // Draw the arrow
+    context.beginPath();
+    context.moveTo(fromx - width*Math.sin(angle), fromy + width*Math.cos(angle));
+    context.lineTo(fromx + width*Math.sin(angle), fromy - width*Math.cos(angle));
+    context.lineTo(midx + width*Math.sin(angle), midy - width*Math.cos(angle));
+    context.lineTo(rightX, rightY); // Right side of the triangle
+    context.lineTo(tox, toy); // Tip of the arrow
+    context.lineTo(leftX, leftY); // Left side of the triangle
+    context.lineTo(midx - width*Math.sin(angle), midy + width*Math.cos(angle));
+    context.closePath(); // Close the path to form a triangle
 }

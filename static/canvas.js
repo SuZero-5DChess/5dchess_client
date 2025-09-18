@@ -1,6 +1,6 @@
 'use strict';
 
-let board_length_x = 8; // 8x8 grid
+let board_length_x = 8; // 8x8 grid (will be changed to actual size)
 let board_length_y = 8;
 const square_size = 10; // size of each square (px)
 const board_margin = 4; // margin outside boards
@@ -206,7 +206,7 @@ function setup_canvas() {
         if(e.button == 0) // left button
         {
             button = 'left';
-            if(x < 8 && y >= 0)
+            if(x < board_length_x && y >= 0)
             {
                 report_click(l, t, c, x, y);
             }

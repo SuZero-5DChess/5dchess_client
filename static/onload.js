@@ -39,7 +39,7 @@ window.onload = function()
         xhr.send();
     });
     document.addEventListener("keydown", function(event) {
-        if (event.key === " ") 
+        if (event.key === "Tab" || event.key === " ") 
         {
             go_to_center();
         } 
