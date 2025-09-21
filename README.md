@@ -48,6 +48,7 @@ To illustrate, if a piece is on the white's board of `(0T3)` and it is at square
 |    `submit-button`   |       `None` \| `'enabled'` \| `'disabled'`       |         No         |                                                                              |
 |     `undo-button`    |                   same as above                   |         No         |                                                                              |
 |     `redo-button`    |                   same as above                   |         No         |                                                                              |
+|        `size`        |             a dict with keys `x` and `y`          |         No         | The size of a board (If not specified, default is 8x8)                       |
 |      `metadata`      |                  any dict object                  |         No         | It is completely ignored by the client                                       |
 |        `data`        | a list of dicts with keys `l`, `t`, `c` and `fen` |         Yes        | `fen` is the chess FEN string for the board on coordinate specified by l,t,c |
 |       `present`      |            a dict with keys `t` and `c`           |         No         | Coordinate of the present line                                               |
@@ -58,7 +59,7 @@ A colored block is a dict with following entries:
 
 | Key in colored block |                                         Allowed Value                                         | Is This Mandatory? | Comments                                    |
 |:--------------------:|:---------------------------------------------------------------------------------------------:|:------------------:|---------------------------------------------|
-| `color`              | html color such as `'#fcff80'`                                                                | Yes                |                                             |
+| `color`              | html color such as `'#fcff80'`                                                              | Yes                |                                             |
 | `coordinates`        | a list of dicts with keys `l`,`t` ,`c`,`x`,`y` (the LTCXY coordinate of squares)              | No                 | squares to be highlighted with this color   |
 | `arrows`             | a list of dicts with keys `from` and `to`  whose values are dicts containing LTCXY coordinate | No                 | arrows to be highlighted with this color    |
 | `timelines`          | a list of integers (in l axis)                                                                | No                 | timelines to be highlighted with this color |
