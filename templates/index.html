@@ -45,10 +45,16 @@
   <canvas id="display"></canvas>
     
   <!-- Top Buttons -->
+  <div id="top-select">
+      <select id="next-select"></select>
+  </div>
   <div id="top-buttons">
+      <button class="btn" id="prev-btn" onclick="request_prev()">Prev</button>
+      <button class="btn" id="next-btn" onclick="request_next()">Next</button>
       <button class="btn" id="undo-btn" onclick="request_undo()">Undo</button>
       <button class="btn" id="redo-btn" onclick="request_redo()">Redo</button>
       <button class="btn btn-primary" id="submit-btn" onclick="request_submit()">Submit</button>
+      <button class="btn" id="hint-btn" onclick="request_hint()">Hint</button>
   </div>
   
   <!-- Status Bar -->
@@ -62,10 +68,20 @@
   <div id="right-buttons">
     <button id="center-btn" class="btn">Center</button>
     <button id="toggle-text" class="btn">Toggle Text</button>
+    <button id="load-btn" class="btn">Load PGN</button>
     <button id="screenshot" class="btn">Screenshot</button>
   </div>
   
   <!-- Floating Text Window -->
   <div id="text-window">Text Window Content</div>
+  <!-- Load Window -->
+  <div id="txt-popup">
+  <textarea id="txt-area" placeholder="Paste 5dpgn here..."></textarea>
+
+  <div id="txt-popup-buttons">
+    <button id="close-popup">Close</button>
+    <button id="load-popup">Load</button>
+  </div>
+</div>
 </body>
 </html>

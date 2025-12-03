@@ -38,6 +38,22 @@ window.onload = function()
         xhr.open('GET', canvasImage); // This is to download the canvas Image
         xhr.send();
     });
+
+    const popup = document.getElementById("txt-popup");
+    const loadBtn = document.getElementById("load-btn");
+    const closeBtn = document.getElementById("close-popup");
+    const loadPopupBtn = document.getElementById("load-popup");
+
+    loadBtn.onclick = () => {
+        popup.style.display = "block";
+    };
+
+    closeBtn.onclick = () => {
+        popup.style.display = "none";
+    };
+
+    loadPopupBtn.onclick = request_load;
+
     document.addEventListener("keydown", function(event) {
         if (event.key === "Tab" || event.key === " ") 
         {

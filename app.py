@@ -27,6 +27,10 @@ def handle_right_click(data):
     print("Recieved right click")
     emit('response_text', 'The server writes: '+str(data))
 
+@socketio.on('request_next')
+def handle_next(data):
+    print("request_next: recieved", data)
+
 @socketio.on('request_data')
 def handle_request(data):
     print(f"Received request for data: {data}")
@@ -34,6 +38,11 @@ def handle_request(data):
         'submit-button': None,
         'undo-button': 'enabled',
         'redo-button': 'disabled',
+        'next-button': 'enabled',
+        'next-options': {
+            1: "Nf3",
+            2: "e3",
+        },
         'size': {
             'x': 8,
             'y': 8
