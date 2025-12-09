@@ -62,12 +62,21 @@ function request_load() {
     socket.emit('request_load', pgn);
 }
 
+function request_pgn() {
+    socket.emit('request_pgn');
+}
+
 socket.on('response_load', function(data) {
     alert(data);
 });
 
 socket.on('response_text', function(data) {
-    let textWindow = document.getElementById('text-window').innerHTML = data;
+    document.getElementById('text-window').innerHTML = data;
+});
+
+socket.on('response_pgn', function(data){
+    console.log(data);
+    document.getElementById('export-area').value = data;
 });
 
 // Listen for the response from the server

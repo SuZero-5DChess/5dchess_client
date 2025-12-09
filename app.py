@@ -147,6 +147,11 @@ def handle_undo():
 def handle_undo():
     print('client requests submit')
 
+@socketio.on('request_pgn')
+def handle_undo():
+    print('client requests pgn')
+    emit('response_pgn', "...")
+
 if __name__ == '__main__':
     socketio.run(app, debug=True)
   

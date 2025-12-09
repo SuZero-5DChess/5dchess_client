@@ -115,10 +115,33 @@ select {
 
 #txt-popup textarea {
     width: 100%;
-    height: 200px;
+    height: 400px;
 }
 
 #txt-popup-buttons {
+    margin-top: 10px;
+    text-align: right;
+}
+
+#export-popup {
+    display: none;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    background: #fff;
+    border: 1px solid #aaa;
+    padding: 20px;
+    box-shadow: 0 0 10px #0004;
+}
+
+#export-popup textarea {
+    width: 100%;
+    height: 400px;
+}
+
+#export-popup-buttons {
     margin-top: 10px;
     text-align: right;
 }

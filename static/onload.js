@@ -39,20 +39,33 @@ window.onload = function()
         xhr.send();
     });
 
-    const popup = document.getElementById("txt-popup");
-    const loadBtn = document.getElementById("load-btn");
-    const closeBtn = document.getElementById("close-popup");
-    const loadPopupBtn = document.getElementById("load-popup");
+    const load_popup = document.getElementById("txt-popup");
+    const load_btn = document.getElementById("load-btn");
+    const close_load_btn = document.getElementById("close-popup");
+    const load_popup_button = document.getElementById("load-popup");
 
-    loadBtn.onclick = () => {
-        popup.style.display = "block";
+    load_btn.onclick = () => {
+        load_popup.style.display = "block";
     };
 
-    closeBtn.onclick = () => {
-        popup.style.display = "none";
+    close_load_btn.onclick = () => {
+        load_popup.style.display = "none";
     };
 
-    loadPopupBtn.onclick = request_load;
+    load_popup_button.onclick = request_load;
+
+    const export_popup = document.getElementById("export-popup");
+    const export_btn = document.getElementById("export-btn");
+    const close_export_btn = document.getElementById("close-export-popup");
+
+    export_btn.onclick = () => {
+        export_popup.style.display = "block";
+        request_pgn();
+    };
+
+    close_export_btn.onclick = () => {
+        export_popup.style.display = "none";
+    };
 
     document.addEventListener("keydown", function(event) {
         if (event.key === "Tab" || event.key === " ") 
@@ -70,6 +83,18 @@ window.onload = function()
         else if (event.key === "y")
         {
             request_redo();
+        }
+        else if (event.key === "h")
+        {
+            request_hint();
+        }
+        else if (event.key === ",")
+        {
+            request_prev();
+        }
+        else if (event.key === ".")
+        {
+            request_next();
         }
     });
       
