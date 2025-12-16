@@ -1,38 +1,67 @@
-'use strict';
+"use strict";
 
+const LOD_SIZES = [64, 32, 16, 8, 4, 2];
 
-// Dictionary to store loaded SVG images (using base name as key)
-const svg_images = {};
-
-// Function to load a single SVG and return a promise
-function load_svg(baseName, filename) {
+// Load a single SVG as Image
+function loadSvgImage(filename) {
     return new Promise((resolve, reject) => {
         const img = new Image();
-        const svgUrl = `${filename}`;  // Adjust path if needed
-
-        img.src = svgUrl;
-        img.onload = function() {
-            svg_images[baseName] = img;  // Store image using the base name
-            resolve(img);
-        };
-        img.onerror = function() {
-            reject(`Failed to load: ${filename}`);  // Reject the promise if an error occurs
-        };
+        img.src = filename;
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load: ${filename}`));
     });
 }
 
-// Load all SVGs concurrently
-const loadPromises = Object.entries(svg_file_mapping).map(([baseName, filename]) =>
-    load_svg(baseName, filename)
-);
+const tempCanvas = document.createElement("canvas");
+const tempCtx = tempCanvas.getContext("2d");
 
-// Once all SVGs are loaded, or if any fail, handle the result
-Promise.all(loadPromises)
-    .then(() => {
-        console.log('All SVGs loaded successfully:', svg_images);
-        // You can now use the svgImages dictionary later
-    })
-    .catch((error) => {
-        alert(error);  // Show an alert if any SVG fails to load
-        console.error(error);  // Log the error to console for debugging
-    });
+// Rasterize Image to given size (returns ImageBitmap)
+async function rasterizeImage(img, size) {
+    tempCanvas.width = size;
+    tempCanvas.height = size;
+    tempCtx.clearRect(0, 0, size, size);
+    tempCtx.drawImage(img, 0, 0, size, size);
+
+    return await createImageBitmap(tempCanvas);
+}
+
+async function loadAllSvgs() {
+    const svgImages = {
+        img: {}, // original SVGs
+        lod: {}  // { size: { name: bitmap, ... } }
+    };
+
+    // Initialize lod object for each size
+    for (const size of LOD_SIZES) {
+        svgImages.lod[size] = {};
+    }
+
+    // Load all SVGs
+    const tasks = Object.entries(svg_file_mapping).map(
+        async ([name, filename]) => {
+            const img = await loadSvgImage(filename);
+            svgImages.img[name] = img;
+
+            // Generate LODs
+            for (const size of LOD_SIZES) {
+                const bitmap = await rasterizeImage(img, size);
+                svgImages.lod[size][name] = bitmap;
+            }
+        }
+    );
+
+    await Promise.all(tasks);
+
+    console.log("All SVGs + LODs loaded:", svgImages);
+    return svgImages;
+}
+
+function chooseLOD(svgImages, pixelSize) {
+    if (pixelSize >= 48) return svgImages.img;
+    if (pixelSize >= 24) return svgImages.lod[64];
+    if (pixelSize >= 12) return svgImages.lod[32];
+    if (pixelSize >= 6)  return svgImages.lod[16];
+    if (pixelSize >= 3)  return svgImages.lod[8];
+    if (pixelSize >= 2)  return svgImages.lod[4];
+    return svgImages.lod[2];
+}

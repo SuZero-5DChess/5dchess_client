@@ -1,6 +1,13 @@
-window.onload = function() 
+'use strict';
+
+window.onload = () => 
 {
-    setup_canvas();
+    window.chessBoardCanvas = new ChessBoardCanvas('display', 'status', 'center-btn');
+    
+    (async () => {
+        window.chessBoardCanvas.setSvgImages(await loadAllSvgs());
+        request_data();
+    })();
 
     document.getElementById('text-window').style.visibility = 'hidden';
     document.getElementById('toggle-text').addEventListener('click', () => {
@@ -67,6 +74,8 @@ window.onload = function()
         export_popup.style.display = "none";
     };
 
+    const go_to_center = () => chessBoardCanvas.goToNextFocus();
+
     document.addEventListener("keydown", function(event) {
         if (event.key === "Tab" || event.key === " ") 
         {
@@ -97,6 +106,6 @@ window.onload = function()
             request_next();
         }
     });
-      
-    request_data();
+    
+    go_to_center();
 }

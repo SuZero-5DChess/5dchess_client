@@ -2,6 +2,8 @@
 
 function parse_FEN(fen) 
 {
+    let board_length_x = window.chessBoardCanvas.boardLengthX;
+    let board_length_y = window.chessBoardCanvas.boardLengthY;
     const rows = fen.split('/');
     if (rows.length !== board_length_x) 
     {
