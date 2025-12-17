@@ -3,7 +3,7 @@
 
 This is a web software that helps displaying 5d chessboard. Elements including:
 
-+ Board with pieces on it.
++ Board with pieces on it. Pieces in `.svg` format are automatically LOD-indexed and rendered.
 
 + The present line.
 
@@ -14,6 +14,8 @@ Additional functionalities:
 + Report which square is clicked to the server.
 
 + Three optional buttons, <kbd>Undo</kbd>, <kbd>Redo</kbd>, and <kbd>Submit</kbd>. If pressed, the server will recieve a request. These buttons can be turned on/off from server side.
+
++ Select box and buttons designed for navigating through turns
 
 + A toggable text window.
 
@@ -45,6 +47,7 @@ To illustrate, if a piece is on the white's board of `(0T3)` and it is at square
 
 | Key in response data |                   Allowed Value                   | Is This Mandatory? | Comments                                                                     |
 |:--------------------:|:-------------------------------------------------:|:------------------:|------------------------------------------------------------------------------|
+|    `match-status`    |                     any text                      |         No         |                                                                              |
 |    `submit-button`   |       `None` \| `'enabled'` \| `'disabled'`       |         No         |                                                                              |
 |     `undo-button`    |                   same as above                   |         No         |                                                                              |
 |     `redo-button`    |                   same as above                   |         No         |                                                                              |

@@ -266,30 +266,42 @@ class ChessBoardCanvas
             }
         }
         
-        // Checkerboard pattern
-        for (const board of cache.filteredBoards) {
-            let l = board.l, v = board.t << 1 | board.c;
-            const shiftX = v * this.boardSkipX;
-            const shiftY = l * this.boardSkipY;
-            
-            ctx.fillStyle = '#7f7f7f';
-            ctx.fillRect(shiftX, shiftY, this.boardLengthX * this.squareSize, this.boardLengthY * this.squareSize);
-            
-            ctx.fillStyle = '#cccccc';
-            for (let row = 0; row < this.boardLengthY; row++) {
-                for (let col = 0; col < this.boardLengthX; col++) {
-                    if ((row + col) % 2 === 0) {
-                        ctx.fillRect(
-                            col * this.squareSize + shiftX,
-                            row * this.squareSize + shiftY,
-                            this.squareSize,
-                            this.squareSize
-                        );
+        const squareLength = this.canvas.cameraCurrent.getZoomLevel() * this.squareSize;
+        if(squareLength > 0.7) {
+            // Checkerboard pattern
+            for (const board of cache.filteredBoards) {
+                let l = board.l, v = board.t << 1 | board.c;
+                const shiftX = v * this.boardSkipX;
+                const shiftY = l * this.boardSkipY;
+                
+                ctx.fillStyle = '#7f7f7f';
+                ctx.fillRect(shiftX, shiftY, this.boardLengthX * this.squareSize, this.boardLengthY * this.squareSize);
+                
+                ctx.fillStyle = '#cccccc';
+                for (let row = 0; row < this.boardLengthY; row++) {
+                    for (let col = 0; col < this.boardLengthX; col++) {
+                        if ((row + col) % 2 === 0) {
+                            ctx.fillRect(
+                                col * this.squareSize + shiftX,
+                                row * this.squareSize + shiftY,
+                                this.squareSize,
+                                this.squareSize
+                            );
+                        }
                     }
                 }
             }
+        } else {
+            for (const board of cache.filteredBoards) {
+                let l = board.l, v = board.t << 1 | board.c;
+                const shiftX = v * this.boardSkipX;
+                const shiftY = l * this.boardSkipY;
+                
+                ctx.fillStyle = '#a6a6a6';
+                ctx.fillRect(shiftX, shiftY, this.boardLengthX * this.squareSize, this.boardLengthY * this.squareSize);
+            }
         }
-        
+            
         // Layer 3: Highlighted squares
         ctx.save();
         ctx.globalAlpha = 0.5;
@@ -301,27 +313,28 @@ class ChessBoardCanvas
         }
         ctx.restore();
         
-        // Layer 4: Pieces
-        const zoom = this.canvas.cameraCurrent.getZoomLevel();
-        this.cameraElement.innerText = `square length: ${zoom*this.squareSize}`;
-        const imgs = chooseLOD(this.svgImages, zoom*this.squareSize);
-        for (const board of cache.filteredBoards) {
-            let l = board.l, v = board.t << 1 | board.c;
-            const shiftX = v * this.boardSkipX;
-            const shiftY = l * this.boardSkipY;
-            
-            let parsedBoard = parse_FEN(board.fen);
-            for (let row = 0; row < this.boardLengthY; row++) {
-                for (let col = 0; col < this.boardLengthX; col++) {
-                    const piece = parsedBoard[row][col];
-                    if (isNaN(piece) && imgs[piece]) {
-                        ctx.drawImage(
-                            imgs[piece],
-                            col * this.squareSize + shiftX,
-                            row * this.squareSize + shiftY,
-                            this.squareSize,
-                            this.squareSize
-                        );
+        if(squareLength > 0.7) {
+            // Layer 4: Pieces
+            this.cameraElement.innerText = `square length: ${squareLength}`;
+            const imgs = chooseLOD(this.svgImages, squareLength);
+            for (const board of cache.filteredBoards) {
+                let l = board.l, v = board.t << 1 | board.c;
+                const shiftX = v * this.boardSkipX;
+                const shiftY = l * this.boardSkipY;
+                
+                let parsedBoard = parse_FEN(board.fen);
+                for (let row = 0; row < this.boardLengthY; row++) {
+                    for (let col = 0; col < this.boardLengthX; col++) {
+                        const piece = parsedBoard[row][col];
+                        if (isNaN(piece) && imgs[piece]) {
+                            ctx.drawImage(
+                                imgs[piece],
+                                col * this.squareSize + shiftX,
+                                row * this.squareSize + shiftY,
+                                this.squareSize,
+                                this.squareSize
+                            );
+                        }
                     }
                 }
             }
@@ -459,14 +472,16 @@ class ChessBoardCanvas
 
     goToNextFocus() {
         this.focusIndex = (this.focusIndex + 1) % this.focusPoints.length;
-        const focus = this.focusPoints[this.focusIndex];
-        
-        const actualScale = this.canvas.canvas.width / 120 / 3;
-        const targetScale = Math.log2(actualScale);
-        const targetX = this.boardSkipX * (focus.t << 1 | focus.c) + this.boardLengthX * this.squareSize / 2;
-        const targetY = this.boardSkipY * focus.l + this.boardLengthY * this.squareSize / 2;
-        
-        this.canvas.moveTo(targetX, targetY, targetScale);
+        if (this.focusPoints[this.focusIndex] !== undefined) {
+            const focus = this.focusPoints[this.focusIndex];
+            
+            const actualScale = this.canvas.canvas.width / 120 / 3;
+            const targetScale = Math.log2(actualScale);
+            const targetX = this.boardSkipX * (focus.t << 1 | focus.c) + this.boardLengthX * this.squareSize / 2;
+            const targetY = this.boardSkipY * focus.l + this.boardLengthY * this.squareSize / 2;
+            
+            this.canvas.moveTo(targetX, targetY, targetScale);
+        }
     }
 
     addFocusPoint(l, t, c) {

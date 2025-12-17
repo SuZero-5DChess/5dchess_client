@@ -18,7 +18,7 @@ function parse_FEN(fen)
         {
         	if(isNaN(char))
             {
-                if ("BCDKNPSQRYUbcdknpsqryu".includes(char)) 
+                if ("BCDKNPSQRUWYbcdknpsqruwy".includes(char)) 
                 {
                     parsedRow.push(char);
             	}

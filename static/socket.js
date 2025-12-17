@@ -24,7 +24,7 @@ function request_prev() {
 function request_next() {
     if(request_next.enabled)
     {
-        var value = document.getElementById("next-select").value;
+        let value = document.getElementById("next-select").value;
         socket.emit('request_next', value);
     }
 }
@@ -118,6 +118,7 @@ socket.on('response_data', function(data) {
     if(next_options && Object.keys(next_options).length > 0)
     {
         const sel = document.getElementById("next-select");
+        let prev_value = sel.value;
         sel.classList.remove('select-inactive');
         sel.classList.add('select-active');
         sel.innerHTML = "";
@@ -129,12 +130,27 @@ socket.on('response_data', function(data) {
             console.log({key, value});
             sel.appendChild(opt);
         }
+        if ([...sel.options].some(opt => opt.value === prev_value)) 
+        {
+            sel.value = prev_value;
+        }
     }
     else
     {
         const sel = document.getElementById("next-select");
         sel.classList.remove('select-active');
         sel.classList.add('select-inactive');
+    }
+
+    const ms = document.getElementById('match-status');
+    if(data['match-status'])
+    {
+        ms.style.display = 'block';
+        ms.innerText = data['match-status'];
+    }
+    else
+    {
+        ms.style.display = 'none';
     }
 
     window.chessBoardCanvas.setData(data);

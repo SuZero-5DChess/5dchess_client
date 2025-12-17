@@ -39,6 +39,7 @@ def handle_request(data):
         'undo-button': 'enabled',
         'redo-button': 'disabled',
         'next-button': 'enabled',
+        'match-status': 'static',
         'next-options': {
             1: "Nf3",
             2: "e3",
