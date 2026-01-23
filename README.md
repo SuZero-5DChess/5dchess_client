@@ -53,7 +53,7 @@ To illustrate, if a piece is on the white's board of `(0T3)` and it is at square
 |     `redo-button`    |                   same as above                   |         No         |                                                                              |
 |        `size`        |             a dict with keys `x` and `y`          |         No         | The size of a board (If not specified, default is 8x8)                       |
 |      `metadata`      |                  any dict object                  |         No         | It is completely ignored by the client                                       |
-|        `data`        | a list of dicts with keys `l`, `t`, `c` and `fen` |         Yes        | `fen` is the chess FEN string for the board on coordinate specified by l,t,c |
+|       `boards`       | a list of dicts with keys `l`, `t`, `c` and `fen` |         Yes        | `fen` is the chess FEN string for the board on coordinate specified by l,t,c |
 |       `present`      |            a dict with keys `t` and `c`           |         No         | Coordinate of the present line                                               |
 |        `focus`       |         a dict with keys `l`, `t` and `c`         |         No         | The board to look at when 'Center' button  in the client is pressed          |
 |     `highlights`     |              a list of colored blocks             |         No         | See below                                                                    |
